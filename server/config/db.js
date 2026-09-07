@@ -1,0 +1,26 @@
+const mongoose = require('mongoose');
+
+async function connectDB() {
+  const uri = process.env.MONGO_URI;
+  if (!uri) {
+    throw new Error('MONGO_URI is not set in the environment');
+  }
+
+  mongoose.set('strictQuery', true);
+
+  try {
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 10000,
+    });
+    console.log(`[db] MongoDB connected: ${conn.connection.host}`);
+  } catch (err) {
+    console.error('[db] MongoDB connection failed:', err.message);
+    process.exit(1);
+  }
+
+  mongoose.connection.on('disconnected', () => {
+    console.warn('[db] MongoDB disconnected');
+  });
+}
+
+module.exports = connectDB;
